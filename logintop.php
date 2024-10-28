@@ -207,7 +207,7 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                 </div>
                 <button type="submit" class="login-btn">Login</button>
             </form>
-            <a href="register.php" class="register-link">don't have account? Register</a>
+            <a href="signup.php" class="register-link">don't have account? Register</a>
         </div>
         <div class="right-panel">
             <img src="https://cdn.discordapp.com/attachments/751471820397609094/1300465345718390836/yskiCXexhXcAAAAASUVORK5CYII.png?ex=6720f03b&is=671f9ebb&hm=16abb19c54c4397fdc34e48903d0bf1a3cef6ed08691d47ddeb1a6c34073581a&" alt="Person in a suit" width="660" height="750"/>

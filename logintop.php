@@ -113,20 +113,20 @@ if (isset($error_message)) {
 <body>
     <div class="wrapper">
         <div class="login-box">
-            <div class="login-header">เข้าสู่ระบบ</div>
+            <div class="login-header">LOGIN</div>
             <form action="login.php" method="POST">
                 <div class="input_box">
-                    <input type="text" name="studentID" class="input-field" placeholder="รหัสนักศึกษา" required>
+                    <input type="text" name="studentID" class="input-field" placeholder="Student ID" required>
                 </div>
                 <div class="input_box">
-                    <input type="password" name="password" class="input-field" placeholder="รหัสผ่าน" required>
+                    <input type="password" name="password" class="input-field" placeholder="Password" required>
                 </div>
                 <div class="input_box">
-                    <input type="submit" class="input-submit" value="เข้าสู่ระบบ">
+                    <input type="submit" class="input-submit" value="Login">
                 </div>
             </form>
             <div class="register-link">
-                <p>ยังไม่มีบัญชี? <a href="signup.php">ลงทะเบียน</a></p>
+                <p>don't have account? <a href="signup.php">register</a></p>
             </div>
         </div>
     </div>

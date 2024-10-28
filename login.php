@@ -1,3 +1,61 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: #E0BBE4;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    height: 100vh;
+    display: flex;
+    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
+    justify-content: center; /* จัดกึ่งกลางแนวนอน */
+    text-align: center;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal-content input[type="text"],
+.modal-content select {
+    display: block;
+    margin: 10px auto; /*ระยะห่าง*/
+    padding: 15px; /*ความสูง*/
+    width: 90%; /*ความกว้าง*/
+    max-width: 500px; /*ความยาว*/
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: border 0.3s ease;
+}
+
+/* ปรับสีเมื่อโฟกัส */
+.modal-content input[type="text"]:focus,
+.modal-content select:focus {
+    border: 1px solid #ab47bc;
+}
+
+.modal-content button {
+    background-color: #9858a3;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.modal-content button:hover {
+    background-color: #df46b1;
+}
+</style>
+
 <div id="loginModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>

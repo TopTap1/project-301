@@ -34,24 +34,6 @@
         font-family: 'Sarabun', sans-serif;
         }
 
-        /*.header .menu {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
-        .header .menu button {
-            background-color: #000;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            margin: 0 5px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .header .menu button:hover {
-            background-color: #333;
-        }*/
-
         .container { /* ส่วนหัว */
             text-align: center;
             padding: 20px;
@@ -182,7 +164,7 @@
             </div>
 
             <div class="card">
-                <img alt="Group of people discussing in a meeting room" height="200" src="https://static.thairath.co.th/media/dFQROr7oWzulq5Fa6rHHU4JBKVXf2GaImkCkMnauvLscky3w2OCpl8YNXwceUtKyy71.jpg" width="300"/>
+                <img alt="Group of people discussing in a meeting room" height="200" src="พรรคก่อน.jpg" width="300"/>
                 <h2>พรรค ก่อน</h2>
                 <ul>
                     <li>วิสัยทัศน์</li>

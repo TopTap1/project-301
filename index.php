@@ -1,125 +1,240 @@
+<?php
+// เริ่มต้น session เมื่อยังไม่ได้เริ่ม
+if (session_status() == PHP_SESSION_NONE) {
+   
+}
+
+// ตั้งค่า session
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'secure' => true,
+    'httponly' => true
+]);
+ session_start();
+// เชื่อมต่อฐานข้อมูล
+try {
+    $conn = new mysqli("localhost", "root", "", "testdb");
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+} catch (Exception $e) {
+    error_log($e->getMessage());
+    $error_message = "เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล";
+}
+
+// ตรวจสอบการส่งข้อมูลจากฟอร์มล็อกอิน
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // ตรวจสอบ CSRF token
+    if (!isset($_SESSION['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die('CSRF token validation failed');
+    }
+
+    // ตรวจสอบจำนวนครั้งที่ล็อกอินล้มเหลว
+    if (isset($_SESSION['login_attempts']) && $_SESSION['login_attempts'] > 3) {
+        if (time() - $_SESSION['last_login_attempt'] < 300) { // 5 นาที
+            $error_message = "กรุณารอ 5 นาทีแล้วลองใหม่อีกครั้ง";
+            exit();
+        } else {
+            $_SESSION['login_attempts'] = 0;
+        }
+    }
+
+    $student_id = filter_var($_POST['studentID'], FILTER_SANITIZE_STRING);
+    $password = $_POST['password'];
+
+    // ตรวจสอบความยาวรหัสผ่าน
+    if (strlen($password) < 8) {
+        $error_message = "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร";
+    } else {
+        try {
+            $sql = "SELECT * FROM users WHERE student_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $student_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+                if (password_verify($password, $user['password'])) {
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    // รีเซ็ตจำนวนครั้งที่ล็อกอินล้มเหลว
+                    unset($_SESSION['login_attempts']);
+                    header('Location: vote.php');
+                    exit();
+                } else {
+                    // เพิ่มจำนวนครั้งที่ล็อกอินล้มเหลว
+                    $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
+                    $_SESSION['last_login_attempt'] = time();
+                    $error_message = "รหัสผ่านไม่ถูกต้อง";
+                }
+            } else {
+                $error_message = "ไม่พบรหัสนักศึกษานี้";
+            }
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            $error_message = "เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่ภายหลัง";
+        }
+    }
+}
+
+// สร้าง CSRF token
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+?>
+
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FMS Online Vote</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
-/* ตั้งค่าทั่วไป */
-body {
-    font-family: 'Sarabun', sans-serif;
-    background-color: #f2f2f2;
-    margin: 0;
-    padding: 0;
-    color: #333;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-}
-
-/* Tab */
-.tab {
-    overflow: hidden;
-    background-color: #ab47bc;
-    display: flex;
-    justify-content: flex-end;
-    padding: 20px 20px;
-    align-items: center;
-    position: relative;
-}
-
-.tab img {
-    position: absolute;
-    left: 20px;
-    height: 50px;
-}
-
-.tab button {
-    background-color: transparent;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    padding: 14px 16px;
-    font-size: 18px;
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.tab button:hover {
-    color: #e1bee7;
-}
-
-.tab button.active {
-    color: white;
-    font-weight: bold;
-}
-
- /* ปุ่มเข้าสู่ระบบ */
- .login-btn {
-    background-color: #ab47bc;
-    color: white;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-    margin: 30px auto;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.login-btn:hover {
-    background-color: #9c27b0; /* ปรับสีเมื่อ hover */
-}
-
-
-.tabcontent {
-    display: none; /* ซ่อนเนื้อหาแท็บอื่นๆ */
-}
-
-.tabcontent.active {
-    display: block; /* แสดงเนื้อหาของแท็บที่เปิด */
-}
-</style>
+    <title>Login Page</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+    /* ตั้งค่าทั่วไป */
+        body {
+        font-family: 'Sarabun', sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .left-panel {
+            flex: 1;
+            padding: 2rem;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .right-panel {
+            flex: 1;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-message {
+            color: #ff0000;
+            background-color: rgba(255, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            padding-left: 35px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .input-group i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        .remember-me {
+            margin-bottom: 1rem;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-btn:hover {
+            background: #0056b3;
+        }
+        .register-link {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
-    <div class="tab">
-        <button class="tablinks" onclick="openTab(event, 'หน้าแรก')" id="defaultOpen">หน้าแรก</button>
-        <button class="tablinks" onclick="openTab(event, 'ผลการโหวต')">ผลการโหวต</button>
-        <button class="tablinks" onclick="openTab(event, 'ผู้มาใช้สิทธิ์')">ผู้มาใช้สิทธิ์</button>
-    </div>
+    <div class="container">
+        <div class="left-panel">
+            <img src="https://www.fms.psu.ac.th/media/2020/03/FMS_Logo_Header_EN.png" alt="PSU Logo" width="500" height="400"/>
+            <h2>Login</h2>
+            <p>ระบบเลือกตั้งโครงการการบริหารสโมสรนักศึกษาคณะวิทยาการจัดการ</p>
+            
+            <?php if (isset($error_message)): ?>
+                <div class="error-message">
+                    <?php echo $error_message; ?>
+                </div>
+            <?php endif; ?>
 
-    <!-- หน้าแรก -->
-    <div id="หน้าแรก" class="tabcontent">
-        <h2>โครงการการบริหารสโมสรนักศึกษาคณะวิทยาการจัดการ</h2>
-        <p>ประจำปีการศึกษา 2568 เพื่อเป็นการส่งเสริมระบอบประชาธิปไตย และสร้างความเป็นผู้นำ</p>
-        <a href="login.php"><button class="login-btn" onclick="openModal()">เข้าสู่ระบบ</button></a>
+            <form method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <div class="input-group">
+                    <input type="text" name="studentID" placeholder="Student ID" required/>
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="input-group">
+                    <input type="password" name="password" placeholder="Password" required/>
+                    <i class="fas fa-eye" id="togglePassword"></i>
+                </div>
+                <div class="remember-me">
+                    <input type="checkbox" id="remember"/>
+                    <label for="remember">Remember me</label>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+
+            </form>
+            <a href="signup.php" class="register-link">don't have account? Register</a>
+        </div>
+        <div class="right-panel">
+            <img src="https://cdn.discordapp.com/attachments/751471820397609094/1300465345718390836/yskiCXexhXcAAAAASUVORK5CYII.png?ex=6720f03b&is=671f9ebb&hm=16abb19c54c4397fdc34e48903d0bf1a3cef6ed08691d47ddeb1a6c34073581a&" alt="Person in a suit" width="660" height="1000"/>
+            <img src=" "
+        </div>
     </div>
 
     <script>
-        function openTab(evt, tabName) {
-            const tabcontent = document.getElementsByClassName("tabcontent");
-            for (let i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].classList.remove("active");
-            }
-            const tablinks = document.getElementsByClassName("tablinks");
-            for (let i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active");
-            }
-            document.getElementById(tabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
-        }
-
-        function openModal() {
-            // ฟังก์ชันสำหรับการเปิดโมดัล
-            alert("กำลังเข้าสู่หน้าLogin");
-        }
-
-        // เปิดแท็บเริ่มต้นเมื่อโหลดหน้า
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById("defaultOpen").click();
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const password = document.querySelector('input[name="password"]');
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
         });
     </script>
 </body>

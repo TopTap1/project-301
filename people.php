@@ -1,3 +1,7 @@
+<?php
+include 'db_connect.php'; // Connect to the database
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,10 +44,12 @@
 </div>
 
 <script>
+    // ข้อมูลผู้ใช้สิทธิ์เริ่มต้น
     var courses = {'บัญชี': 0, 'รัฐประศาสนศาสตร์': 0, 'การเงิน': 0, 'การตลาด': 0, 'การจัดการทรัพยากรมนุษย์': 0, 'ระบบสารสนเทศทางธุรกิจ': 0, 'การจัดการ (หลักสูตรนานาชาติ)': 0, 'การจัดการโลจิสติกส์': 0, 'การจัดการไมซ์': 0};
     var years = {'ปี 1': 0, 'ปี 2': 0, 'ปี 3': 0, 'ปี 4': 0, 'ปี 5': 0, 'ปี 6': 0, 'ปี 7': 0, 'ปี 8': 0};
 
-    new Chart(document.getElementById('courseChart'), {
+    // สร้างกราฟ
+    var courseChart = new Chart(document.getElementById('courseChart'), {
         type: 'bar',
         data: {
             labels: Object.keys(courses),
@@ -58,7 +64,7 @@
         options: { scales: { y: { beginAtZero: true } } }
     });
 
-    new Chart(document.getElementById('yearChart'), {
+    var yearChart = new Chart(document.getElementById('yearChart'), {
         type: 'bar',
         data: {
             labels: Object.keys(years),
@@ -72,9 +78,25 @@
         },
         options: { scales: { y: { beginAtZero: true } } }
     });
-    // คำสั่งนี้ควรจะมีฟังก์ชันที่เกี่ยวข้องในการเปิดแท็บ
-    // document.getElementById("defaultOpen").click();
-    
+    // ฟังก์ชันอัปเดตข้อมูลกราฟ
+    function updateCharts() {
+        courseChart.data.datasets[0].data = Object.values(courses);
+        yearChart.data.datasets[0].data = Object.values(years);
+        courseChart.update();
+        yearChart.update();
+    }
+
+    // ฟังก์ชันเพิ่มจำนวนผู้ใช้สิทธิ์ในหลักสูตรและชั้นปี
+    function addVoter(course, year) {
+        if (courses[course] !== undefined) courses[course]++;
+        if (years[year] !== undefined) years[year]++;
+        updateCharts();
+    }
+
+    // ทดสอบการอัปเดตข้อมูล
+    addVoter('บัญชี', 'ปี 1');
+    addVoter('การเงิน', 'ปี 2');
+    addVoter('การตลาด', 'ปี 3');
 </script>
 </body>
 </html>

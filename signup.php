@@ -254,19 +254,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <option value="ปี 6">ชั้นปี 6</option>
                 <option value="ปี 7">ชั้นปี 7</option>
                 <option value="ปี 8">ชั้นปี 8</option>
-            </select>
+                </select>
             <div id="error-message" class="error-msg"></div>
             <div class="input_box">
                 <input type="submit" class="input-submit" value="Sign Up">
             </div>
+
             <div class="login">
-                <span>Already have an account? <a href="logintop.php">Login</a></span>
+                <span>Already have aaccountn ? <a href="index.php">Login</a></span>
             </div>
         </form>
 
         <?php
         if (isset($_GET['status']) && $_GET['status'] == 'success') {
-            echo "<p class='success-msg'>Sign Up successful! You can now <a href='login.php'>Login</a>.</p>";
+            echo "<p class='success-msg'>Sign Up successful! You can now <a href='index.php'>login</a>.</p>";
+            
         }
         ?>
     </div>

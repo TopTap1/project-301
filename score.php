@@ -54,11 +54,30 @@ canvas {
 </div>
 
 <script>
-        const votes = {
-        'พรรค A': 10,
-        'พรรค B': 20,
-        'พรรค C': 30
-    };
+        function login(event) {
+        event.preventDefault(); // หยุดการส่งฟอร์มปกติ
+        var name = document.getElementById("name").value;
+        var studentID = document.getElementById("studentID").value;
+        var course = document.getElementById("course").value;
+        var year = document.getElementById("year").value;
+        if (name && studentID && course && year) {
+            courses[course]++;
+            years[year]++;
+            closeModal();
+            openTab(null, 'เลือกพรรค');
+        } else {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+        }
+    }
+
+    function vote(party) { /*เรียกใช้ฟังก์ชัน updateTotalVotes() อัปเดตคะแนน */
+            votes[party]++;
+            updateCharts();
+            updateTotalVotes();
+            alert("โหวตสำเร็จ");
+            openTab(event, 'ผลการโหวต');
+        }
+
     function updateCharts() {
     new Chart(document.getElementById('partyChart'), {
         type: 'bar',
@@ -78,10 +97,10 @@ canvas {
     updateTotalVotes();
 }
 
-   /* document.getElementById('totalVotes').innerHTML = Object.entries(votes).map(
+   * document.getElementById('totalVotes').innerHTML = Object.entries(votes).map(
         ([party, score]) => `<strong>${party}:</strong> ${score} คะแนน`
     ).join('<br>');    
-}*/
+
 
     function updateTotalVotes() { /*บอกคะแนนรวม*/
     const totalVotesDiv = document.getElementById('totalVotes');

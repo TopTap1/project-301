@@ -104,7 +104,8 @@ body {
                 <option value="ปี 7">ชั้นปี 7</option>
                 <option value="ปี 8">ชั้นปี 8</option>
             </select>
-            <br><button type="submit" class="login-btn">เข้าสู่ระบบ</button>
+            <br><button type="button" class="login-btn" onclick="window.location.href='vote.php'">เข้าสู่ระบบ</button>
+
         </form>
     </div>
 </div>

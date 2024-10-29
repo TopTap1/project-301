@@ -1,25 +1,27 @@
 <?php
-include 'db_connect.php'; // เชื่อมต่อฐานข้อมูล
+include 'db_connect.php'; // Connect to the database
 
-// ตรวจสอบการส่งฟอร์ม
+$course = isset($_POST['course']) ? $_POST['course'] : null;
+$year = isset($_POST['year']) ? $_POST['year'] : null;
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // รับค่าจากฟอร์ม
-    $student_id = $_POST['student_id']; // เปลี่ยนเป็นรหัสนักศึกษา
+    $student_id = $_POST['student_id'];
     $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+    $course = $_POST['course'];
+    $year = $_POST['year'];
     $errorMessages = [];
 
-    // ตรวจสอบความยาวรหัสผ่าน
+    // Password length validation
     if (strlen($password) < 8) {
         $errorMessages[] = "Password must be at least 8 characters long.";
     } elseif ($password !== $confirm_password) {
         $errorMessages[] = "Passwords do not match.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        // ตรวจสอบรูปแบบอีเมล
         $errorMessages[] = "Invalid email format.";
     } else {
-        // ตรวจสอบว่ารหัสนักศึกษา หรืออีเมลซ้ำหรือไม่
+        // Check for duplicate student ID or email
         $sql = "SELECT * FROM users WHERE student_id = ? OR email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $student_id, $email);
@@ -27,41 +29,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            // เช็คว่ารหัสนักศึกษา ซ้ำ
-            if ($result->fetch_assoc()['student_id'] === $student_id) {
-                $errorMessages[] = "Student ID '$student_id' already exists.";
-            }
-
-            // รีเซ็ต pointer ของ result
-            $result->data_seek(0);
-
-            // เช็คว่าอีเมลซ้ำ
-            if ($result->fetch_assoc()['email'] === $email) {
-                $errorMessages[] = "Email '$email' already exists.";
+            while ($row = $result->fetch_assoc()) {
+                if ($row['student_id'] === $student_id) {
+                    $errorMessages[] = "Student ID '$student_id' already exists.";
+                }
+                if ($row['email'] === $email) {
+                    $errorMessages[] = "Email '$email' already exists.";
+                }
             }
         }
     }
 
-    // แสดงข้อความผิดพลาดหากมี
+    // Display error messages if any
     if (!empty($errorMessages)) {
         echo "<div class='error-msg'>" . implode("<br>", $errorMessages) . "</div>";
     } else {
-        // แฮชรหัสผ่านก่อนบันทึกลงฐานข้อมูล
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        // บันทึกข้อมูลลงฐานข้อมูล
-        $sql = "INSERT INTO users (student_id, email, password) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $student_id, $email, $hashed_password);
+    // แฮชรหัสผ่านก่อนบันทึกลงฐานข้อมูล
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // บันทึกข้อมูลลงฐานข้อมูล
+    $sql = "INSERT INTO users (student_id, email, password, course, year) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssss", $student_id, $email, $hashed_password, $course, $year);
 
         if ($stmt->execute()) {
-            // ส่งอีเมลยืนยัน
+            // Send verification email
             $to = $email;
             $subject = "Email Verification";
             $message = "Please click the link to verify your email: <a href='verify_email.php?email=" . urlencode($email) . "'>Verify Email</a>";
             $headers = "MIME-Version: 1.0" . "\r\n";
             $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-            $headers .= "From: no-reply@VOTE.FMS.PSU.com" . "\r\n"; // แก้ไขเป็นอีเมลของคุณ
+            $headers .= "From: no-reply@VOTE.FMS.PSU.com" . "\r\n";
 
             mail($to, $subject, $message, $headers);
             header("Location: signup.php?status=success");
@@ -190,9 +189,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .login a:hover {
             text-decoration: underline;
         }
+        .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10%;
+    cursor: pointer;
+    /*color: #aaa;
+    float: right;
+    font-size: 24px;*/
+}
+
+.close-btn:hover {
+    color: black;
+}
     </style>
 </head>
 <body>
+<form action="signup.php" method="POST">
+
     <div class="signup-box">
         <div class="signup-header">
             <span>Create Your Account</span>
@@ -218,6 +232,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label for="confirm_password" class="Label">Confirm Password</label>
                 <i class="fas fa-eye icon" id="toggleConfirmPassword" onclick="togglePassword('confirm_password')"></i>
             </div>
+            <select id="course" name="course" required>
+                <option value="">เลือกหลักสูตร</option><br>
+                <option value="บัญชี">บัญชี</option>
+                <option value="รัฐประศาสนศาสตร์">รัฐประศาสนศาสตร์</option>
+                <option value="การเงิน">การเงิน</option>
+                <option value="การตลาด">การตลาด</option>
+                <option value="การจัดการทรัพยากรมนุษย์">การจัดการทรัพยากรมนุษย์</option>
+                <option value="ระบบสารสนเทศทางธุรกิจ">ระบบสารสนเทศทางธุรกิจ</option>
+                <option value="การจัดการ (หลักสูตรนานาชาติ)">การจัดการ (หลักสูตรนานาชาติ)</option>
+                <option value="การจัดการโลจิสติกส์">การจัดการโลจิสติกส์</option>
+                <option value="การจัดการไมซ์">การจัดการไมซ์</option>
+            </select>
+            <select id="year" name="year" required> 
+                <option value="">เลือกชั้นปี</option>
+                <option value="ปี 1">ชั้นปี 1</option>
+                <option value="ปี 2">ชั้นปี 2</option>
+                <option value="ปี 3">ชั้นปี 3</option>
+                <option value="ปี 4">ชั้นปี 4</option>
+                <option value="ปี 5">ชั้นปี 5</option>
+                <option value="ปี 6">ชั้นปี 6</option>
+                <option value="ปี 7">ชั้นปี 7</option>
+                <option value="ปี 8">ชั้นปี 8</option>
+            </select>
             <div id="error-message" class="error-msg"></div>
             <div class="input_box">
                 <input type="submit" class="input-submit" value="Sign Up">

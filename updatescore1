@@ -1,0 +1,11 @@
+<?php
+include("db_connect.php");
+
+$query = "UPDATE `คะแนนโหวต` SET `พรรค ผ่อน`=`พรรค ผ่อน` + 1";
+
+if (isset($_POST['ลงคะแนน1'])) {
+    $result = mysqli_query($con, $query);  // เพิ่มคะแนนก่อน
+    header("location:score.php");  // เปลี่ยนเส้นทางหลังจากอัปเดตเสร็จ
+    exit();  // ป้องกันโค้ดอื่นทำงานต่อหลังเปลี่ยนหน้า
+}
+?>

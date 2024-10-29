@@ -81,15 +81,6 @@
             font-weight: bold;
         }
 
-        *.card ul li::before {
-            content: "•";
-            color: #b200b7;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
-            padding: 10px 20px;
-        }*
-
         .card button {
             background-color: #ffcc00;
             border: none;
@@ -128,22 +119,21 @@
             font-size: 1.5em;
             color: #000;
         }
-    .purple-button {
-    background-color: #8a2be2; /* สีม่วง */
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s;
-    }
+        .purple-button {
+            background-color: #8a2be2; /* สีม่วง */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
 
-.purple-button:hover {
-    background-color: #7a1fbf; /* สีม่วงเข้มขึ้นเมื่อเอาเมาส์ไปชี้ */
-}
-
-  </style>
+        .purple-button:hover {
+            background-color: #7a1fbf; /* สีม่วงเข้มขึ้นเมื่อเอาเมาส์ไปชี้ */
+        }
+    </style>
 </head>
 <body> 
     <div class="container">
@@ -153,14 +143,12 @@
                 <img alt="Group of people discussing in front of a computer" height="200" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnBfGEmVv--6pJ3kKba0SB8ptey_m0M568LQ&s" width="300"/>
                 <h2>พรรค ผ่อน</h2>
                 <ul>
-                <li>วิสัยทัศน์</li>
-                <p>ลดเวลาเรียน เพิ่มเวลารู้ เน้นการเรียนรู้แบบสนุกสนาน กิจกรรมนอกห้องเรียนสำคัญกว่า สอบปลายภาคแบบ open book (อาจมีข้อจำกัดบางวิชา)</p>
+                    <li>วิสัยทัศน์</li>
+                    <p>ลดเวลาเรียน เพิ่มเวลารู้ เน้นการเรียนรู้แบบสนุกสนาน กิจกรรมนอกห้องเรียนสำคัญกว่า สอบปลายภาคแบบ open book (อาจมีข้อจำกัดบางวิชา)</p>
                 </ul>
-                <button onclick="window.location.href='score.php'">ลงคะแนน</button>
-            </div>
-
-            <div class="arrow">
-                <i class="fas fa-arrow-right"></i>
+                <form action="score.php" method="get">
+                    <button type="submit">ลงคะแนน</button>
+                </form>
             </div>
 
             <div class="card">
@@ -170,10 +158,16 @@
                     <li>วิสัยทัศน์</li>
                     <p>เน้นการเรียนหนัก สอบยาก แต่ได้ความรู้แน่นปึ้ก ตัวชี้วัดทุกวิชา ประเมินการเรียนการสอนแบบเข้มข้น จัดกิจกรรมเสริมสร้างทักษะ ส่งเสริมการแข่งขันอย่างสร้างสรรค์</p>
                 </ul>
-                <button onclick="window.location.href='score.php'">ลงคะแนน</button>
-            </div>
+            <form action="score.php" method="get">
+                <button type="submit">ลงคะแนน</button>
+            </form>
         </div>
-        <button class="purple-button" onclick="window.location.href='score.php'">ไม่ประสงค์ลงคะแนน</button>
+    </div>
+    <form action="score.php" method="get">
+        <button type="submit" class="purple-button">ไม่ประสงค์ลงคะแนน</button>
+    </form>
     </div>
 </body>
 </html>
+        
+        

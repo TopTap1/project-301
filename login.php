@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 body {
@@ -13,6 +19,16 @@ body {
     text-align: center;
 }
 
+.modal-content {
+    background-color: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #ab47bc; /* สีกรอบ */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* เงากรอบ */
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
 .modal-content form {
     display: flex;
     flex-direction: column;
@@ -25,7 +41,7 @@ body {
     margin: 10px auto; /*ระยะห่าง*/
     padding: 15px; /*ความสูง*/
     width: 90%; /*ความกว้าง*/
-    max-width: 500px; /*ความยาว*/
+    max-width: 400px; /*ความยาว*/
     border-radius: 5px;
     border: 1px solid #ccc;
     transition: border 0.3s ease;
@@ -55,10 +71,12 @@ body {
     background-color: #df46b1;
 }
 </style>
+</head>
 
+<body>
 <div id="loginModal" class="modal">
     <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <span class="close-btn" ></span>
         <h2>เข้าสู่ระบบ</h2>
         <form onsubmit="login(event)">
             <input type="text" id="name" placeholder="ชื่อ" required>
@@ -126,3 +144,5 @@ body {
         }
     }
 </script>
+</body>
+</html>

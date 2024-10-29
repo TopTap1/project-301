@@ -95,7 +95,7 @@ body {
     <div id="หน้าแรก" class="tabcontent">
         <h2>โครงการการบริหารสโมสรนักศึกษาคณะวิทยาการจัดการ</h2>
         <p>ประจำปีการศึกษา 2568 เพื่อเป็นการส่งเสริมระบอบประชาธิปไตย และสร้างความเป็นผู้นำ</p>
-        <button class="login-btn" onclick="openModal()">เข้าสู่ระบบ</button>
+        <a href="login.php"><button class="login-btn" onclick="openModal()">เข้าสู่ระบบ</button></a>
     </div>
 
     <script>
